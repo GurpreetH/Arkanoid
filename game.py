@@ -24,11 +24,11 @@ pygame.display.set_caption('Snake')
 
 size_x = DISPLAY_W//snake_w
 
-snake_head = np.array([200, 100])
+snake_head = [200, 100]
 
 snake = [snake_head]
 
-food = np.array([random.randrange(1, (DISPLAY_W//10)) * 10, random.randrange(1, (DISPLAY_H//10)) * 10])
+food = [random.randrange(1, (DISPLAY_W//10)) * 10, random.randrange(1, (DISPLAY_H//10)) * 10]
 
 UP = [0, -10]
 DOWN = [0, 10]
@@ -41,38 +41,47 @@ score = 0
 
 running = True
 while running:
-    clock.tick(10)
+    clock.tick(20)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_UP or event.key == ord('w'):
-                next_loc = UP
+                if not next_loc == DOWN:
+                    next_loc = UP
             if event.key == pygame.K_DOWN or event.key == ord('s'):
-                next_loc = DOWN
+                if not next_loc == UP:
+                    next_loc = DOWN
             if event.key == pygame.K_LEFT or event.key == ord('a'):
-                next_loc = LEFT
+                if not next_loc == RIGHT:
+                    next_loc = LEFT
             if event.key == pygame.K_RIGHT or event.key == ord('d'):
-                next_loc = RIGHT
+                if not next_loc == LEFT:
+                    next_loc = RIGHT
             if event.key == pygame.K_ESCAPE:
                 pygame.event.post(pygame.event.Event(pygame.QUIT))
 
-    snake_head += next_loc
-    print(snake_head)
-    snake.insert(0, list(snake_head))
-
-    if snake_head == food:
+    if snake_head[0] == food[0] and snake_head[1] == food[1]:
         score += 1
         food = [random.randrange(1, (DISPLAY_W // 10)) * 10, random.randrange(1, (DISPLAY_H // 10)) * 10]
     else:
         snake.pop()
-
     display.fill(black)
+    snake_head[0] += next_loc[0]
+    snake_head[1] += next_loc[1]
+    for part in snake:
+        if snake_head[0] == part[0] and snake_head[1] == part[1]:
+            running = False
+    snake.insert(0, list(snake_head))
     for part in snake:
         pygame.draw.rect(display, green, pygame.Rect(part[0], part[1], snake_w, snake_h))
 
+    if not 0 <= snake_head[0] < DISPLAY_W:
+        running = False
+    if not 0 <= snake_head[1] < DISPLAY_H:
+        running = False
+
     pygame.draw.rect(display, red, pygame.Rect(food[0], food[1], 10, 10))
-    print('reating')
     pygame.display.update()
 
 pygame.quit()
